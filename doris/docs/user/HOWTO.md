@@ -321,7 +321,7 @@ GROUP BY ai_cache_status, mirror_hit, ai_intent_answer;
 
 | 日期 | 版本 | 变更说明 |
 |------|------|----------|
-| 2026-09-29 | v1.7 | 数据报表二期（v0.8）：明细表 +13 列（10 列缓存/镜像/意图 + 3 列限流打平）、聚合表 +3 KEY 维度（37→40 维）、INSERT JOB GROUP BY 扩 3 维、Routine Load 映射扩 13 列、demo 样例补新字段；新增第 11 节「存量部署升级」与 `sqls/upgrade/` ALTER 脚本（每环境执行一次）。Doris 3.0 兼容性修复：JOB 中 `ARRAY<STRUCT>` 元素字段解引用不被 Doris 3.0.8 支持，限流首个命中改由 Routine Load `json_extract` 打平为 `rate_limit_policy_id`/`rate_limit_type`/`rate_limit_rule_name` 标量列 |
+| 2026-09-29 | v1.7 | 数据报表二期（v0.8）：明细表 +13 列（10 列缓存/镜像/意图 + 3 列限流打平）、聚合表 +3 KEY 维度（37→40 维）、INSERT JOB GROUP BY 扩 3 维、Routine Load 映射扩 13 列、demo 样例补新字段；新增第 11 节「存量部署升级」与 `sqls/upgrade/` ALTER 脚本（每环境执行一次）。Doris 3.0 兼容性修复：JOB 中 `ARRAY<STRUCT>` 元素字段解引用不被 Doris 3.0.8 支持，限流首个命中改由 Routine Load `json_extract` 打平为 `rate_limit_policy_id`/`rate_limit_type`/`rate_limit_rule_name` 标量列。**时区口径修复（集成测试实跑发现）**：`FROM_UNIXTIME` 按会话时区解释 epoch，FE 非 UTC 时 `log_time` 会偏移导致查询层（报表 API/Grafana 按 UTC 过滤）查不到数据——Routine Load 改为 `DATE_SUB(FROM_UNIXTIME(timestamp), INTERVAL TIMESTAMPDIFF(SECOND, UTC_TIMESTAMP(), NOW()) SECOND)` 写 UTC 墙钟，INSERT JOB 窗口改用 `UTC_TIMESTAMP()`，任何 FE 时区下口径一致 |
 | 2026-08-25 | v1.6 | 新增 `ai_protocol`、`ai_mode`（聚合表维度列）与 `ai_audio_input_tokens`、`ai_audio_output_tokens`、`ai_image_count`（明细表 + 聚合表指标列），同步 Routine Load、INSERT JOB、demo 样例与 TABLE_DESIGN.md |
 | 2026-08-24 | v1.5 | 新增 `cleanup.sh` 清空脚本：删除指定数据库下的明细表、聚合表、Routine Load 和 INSERT JOB |
 | 2026-08-24 | v1.4 | 数据库名参数化：新增 `DORIS_DATABASE` 配置项，`setup.sh` 执行时将 SQL 中的 `bfe_observability` 替换为配置值；新增测试配置 `setup_test.conf`（数据库 `bfe_observability_test`） |
