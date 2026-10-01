@@ -121,9 +121,25 @@ CREATE TABLE bfe_ai_request_log (
         rate_limit_type      : VARCHAR(32),
         rule_names           : ARRAY<VARCHAR(128)>
     >>                                      COMMENT '限流命中列表',
+    -- 限流首个命中打平列（Doris 3.0 不支持 ARRAY<STRUCT> 元素字段解引用，由 Routine Load 在导入时打平）
+    rate_limit_policy_id    VARCHAR(128)    COMMENT '限流策略 ID（取首个命中，打平列）',
+    rate_limit_type         VARCHAR(32)     COMMENT '限流类型（取首个命中，打平列）',
+    rate_limit_rule_name    VARCHAR(128)    COMMENT '限流规则名（取首条规则，打平列）',
     ai_auth_reject_reason   VARCHAR(256)    COMMENT '认证拒绝原因',
     ai_auth_reject_quota_plans ARRAY<VARCHAR(128)> COMMENT '被拒绝的配额计划',
-    ai_auth_hit_quota_plans ARRAY<VARCHAR(128)> COMMENT '成功请求时命中的配额计划'
+    ai_auth_hit_quota_plans ARRAY<VARCHAR(128)> COMMENT '成功请求时命中的配额计划',
+
+    -- AI 可观测 — 缓存/镜像/意图（v0.8 报表二期）
+    ai_cache_status         VARCHAR(16)     COMMENT '缓存状态：hit/miss/skip，空=未启用',
+    mirror_hit              BOOLEAN         COMMENT '镜像是否命中',
+    mirror_cluster          VARCHAR(128)    COMMENT '镜像集群',
+    ai_intent_question      VARCHAR(64)     COMMENT '意图问题',
+    ai_intent_answer        VARCHAR(64)     COMMENT '意图答案（含 unknown）',
+    ai_intent_confidence    DOUBLE          COMMENT '意图置信度（NULL=未分类）',
+    ai_intent_source        VARCHAR(32)     COMMENT '意图来源：explicit_header/classifier/cache',
+    ai_intent_latency_us    BIGINT          COMMENT '意图决策耗时（微秒，NULL=未分类）',
+    ai_intent_cache_hit     BOOLEAN         COMMENT '意图缓存命中（NULL=未分类）',
+    ai_intent_questions_version VARCHAR(32) COMMENT '意图问题集版本'
 )
 UNIQUE KEY(hostid, log_time, ai_apikey_id, ai_requested_model)
 PARTITION BY RANGE(log_time) (

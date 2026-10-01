@@ -35,13 +35,15 @@ ai-gateway-observability/
 │   │   ├── bfe_ai_request_log.sql     #   明细表
 │   │   ├── bfe_ai_metrics_1m.sql      #   聚合表
 │   │   ├── bfe_ai_log_load_routine.sql#   Routine Load
-│   │   └── bfe_ai_metrics_1m_job.sql  #   INSERT JOB
+│   │   ├── bfe_ai_metrics_1m_job.sql  #   INSERT JOB
+│   │   └── upgrade/                   #   存量升级 SQL（按变更日期分目录）
 │   ├── demo/                          # 演示 JSON 样例
 │   └── docs/                          # 文档
 │       ├── user/HOWTO.md              #   Doris 部署指南
 │       ├── design/TABLE_DESIGN.md     #   表设计说明
-│       └── modification/              #   变更记录
-│           └── 20260826update2newPb.md#   升级到新 PB 字段变更
+│       └── modifications/             #   变更记录（每项变更一个目录）
+│           ├── 2026-08-26-update-to-new-pb/  # 升级到新 PB 字段变更
+│           └── 2026-09-29-report-cache-mirror-intent-doris-alignment/  # 报表二期 Doris 对齐缓存/镜像/意图字段
 ├── grafana/
 │   ├── setup.sh                       # 一键配置（数据源 + Dashboard + 重启）
 │   ├── setup.conf                     # 生产配置
@@ -114,7 +116,8 @@ bash setup.sh ./setup_test.conf
 |------|------|
 | [doris/docs/user/HOWTO.md](./doris/docs/user/HOWTO.md) | Doris 部署与验证步骤 |
 | [doris/docs/design/TABLE_DESIGN.md](./doris/docs/design/TABLE_DESIGN.md) | 两张表的结构、字段语义、Grafana 查询指南 |
-| [doris/docs/modification/20260826update2newPb.md](./doris/docs/modification/20260826update2newPb.md) | 升级到新 PB 的字段变更记录 |
+| [doris/docs/modifications/2026-08-26-update-to-new-pb/design-changes.md](./doris/docs/modifications/2026-08-26-update-to-new-pb/design-changes.md) | 升级到新 PB 的字段变更记录 |
+| [doris/docs/modifications/2026-09-29-report-cache-mirror-intent-doris-alignment/design-changes.md](./doris/docs/modifications/2026-09-29-report-cache-mirror-intent-doris-alignment/design-changes.md) | 报表二期：Doris 对齐缓存/镜像/意图字段 |
 | [grafana/docs/user/HOWTO.md](./grafana/docs/user/HOWTO.md) | Grafana 数据源 + Dashboard 配置步骤 |
 | [grafana/docs/design/DASHBOARD_DESIGN.md](./grafana/docs/design/DASHBOARD_DESIGN.md) | Dashboard 面板布局与 SQL |
 | [grafana/docs/modification/20260826update2newPb.md](./grafana/docs/modification/20260826update2newPb.md) | 升级到新 PB 的 Dashboard 变更记录 |

@@ -33,15 +33,18 @@ SELECT
     COALESCE(level4, '')                 AS level4,
     COALESCE(level5Name, '')             AS level5Name,
     COALESCE(level5, '')                 AS level5,
-    COALESCE(ELEMENT_AT(ai_rate_limit_hits, 1).rate_limit_policy_id, '') AS rate_limit_policy_id,
-    COALESCE(ELEMENT_AT(ai_rate_limit_hits, 1).rate_limit_type, '')      AS rate_limit_type,
-    COALESCE(ELEMENT_AT(ELEMENT_AT(ai_rate_limit_hits, 1).rule_names, 1), '') AS rate_limit_rule_name,
+    COALESCE(rate_limit_policy_id, '')   AS rate_limit_policy_id,
+    COALESCE(rate_limit_type, '')        AS rate_limit_type,
+    COALESCE(rate_limit_rule_name, '')   AS rate_limit_rule_name,
     COALESCE(ai_auth_reject_reason, '')  AS ai_auth_reject_reason,
     COALESCE(ELEMENT_AT(ai_auth_reject_quota_plans, 1), '') AS ai_auth_reject_quota_plans_slot1,
     COALESCE(ELEMENT_AT(ai_auth_reject_quota_plans, 2), '') AS ai_auth_reject_quota_plans_slot2,
     COALESCE(ELEMENT_AT(ai_auth_reject_quota_plans, 3), '') AS ai_auth_reject_quota_plans_slot3,
     COALESCE(ELEMENT_AT(ai_auth_reject_quota_plans, 4), '') AS ai_auth_reject_quota_plans_slot4,
     COALESCE(ELEMENT_AT(ai_auth_reject_quota_plans, 5), '') AS ai_auth_reject_quota_plans_slot5,
+    COALESCE(ai_cache_status, '')        AS ai_cache_status,
+    COALESCE(mirror_hit, 0)              AS mirror_hit,
+    COALESCE(ai_intent_answer, '')       AS ai_intent_answer,
     -- metrics
     COUNT(1)                             AS request_count,
     SUM(CASE WHEN err_code != '' AND err_code IS NOT NULL THEN 1 ELSE 0 END) AS error_count,
@@ -80,4 +83,5 @@ GROUP BY ts_min, hostid, ai_apikey_id, ai_requested_model, ai_target_model, ai_s
          ai_auth_reject_reason,
          ai_auth_reject_quota_plans_slot1, ai_auth_reject_quota_plans_slot2,
          ai_auth_reject_quota_plans_slot3, ai_auth_reject_quota_plans_slot4,
-         ai_auth_reject_quota_plans_slot5;
+         ai_auth_reject_quota_plans_slot5,
+         ai_cache_status, mirror_hit, ai_intent_answer;
