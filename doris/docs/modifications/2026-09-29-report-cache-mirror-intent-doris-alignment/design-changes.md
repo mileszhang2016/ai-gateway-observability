@@ -82,6 +82,8 @@ Doris 侧不做本期补齐的话，查询层引用的列在 Doris 中不存在�
 
 `bfe_ai_log_load_routine.sql` 的 `COLUMNS(...)` 映射追加缓存/镜像/意图 10 列，使 mod_kafka JSON 中的新字段落库而非被丢弃；同时新增 3 个限流打平列（`rate_limit_policy_id` 等），在导入时用 `json_unquote(json_extract(ai_rate_limit_hits, '$[0].rate_limit_policy_id'))` 从 JSON 数组提取首个命中（与 `level1Name` 打平同一模式，见 §4.4）。修改后需对存量 Routine Load 任务重启或重建生效，且必须在 schema（§4.1）就位之后、新列数据大量到达之前完成（schema-first）。
 
+> **时区口径修复（2026-10-01，SC36 集成测试实跑发现）**：`log_time = FROM_UNIXTIME(timestamp)` 按 FE 会话时区解释 epoch，非 UTC 时区（如本机 Asia/Shanghai）下存储偏移，按 UTC 过滤的报表 API / Grafana 窗口查不到数据。修复：`log_time` 改为 `DATE_SUB(FROM_UNIXTIME(timestamp), INTERVAL TIMESTAMPDIFF(SECOND, UTC_TIMESTAMP(), NOW()) SECOND)`（会话偏移动态扣除，写 UTC 墙钟，与 MySQL 链路 log-reader 写入口径一致），任何 FE 时区下口径一致。INSERT JOB 的分钟窗口同步改用 `UTC_TIMESTAMP()`（§4.4）。
+
 ### 4.3 聚合表重建加 3 个 KEY 维度（本变更最大的变更点）
 
 `bfe_ai_metrics_1m` 为 AGGREGATE KEY 模型，KEY 列变更只能整表重建。新聚合表在既有 37 维 + 24 指标基础上增加 3 个 KEY 维度列（Doris KEY 列天然 NOT NULL，空值由 JOB 写入侧 `COALESCE` 归一）：

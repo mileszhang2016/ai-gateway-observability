@@ -4,7 +4,9 @@ CREATE ROUTINE LOAD bfe_ai_log_load ON bfe_ai_request_log
 COLUMNS(
     logid,
     timestamp,
-    log_time         = FROM_UNIXTIME(timestamp),
+    -- 存储 UTC 墙钟（与 MySQL 链路 log-reader 写入口径一致）：FROM_UNIXTIME 按会话时区
+    -- 解释 epoch，此处减去会话相对 UTC 的偏移，保证任何 FE 时区下结果一致。
+    log_time         = DATE_SUB(FROM_UNIXTIME(timestamp), INTERVAL TIMESTAMPDIFF(SECOND, UTC_TIMESTAMP(), NOW()) SECOND),
     product,
     log_tag,
     hostid,
@@ -117,6 +119,10 @@ PROPERTIES (
 FROM KAFKA (
     "kafka_broker_list" = "${KAFKA_BROKER_LIST}",
     "kafka_topic" = "${KAFKA_TOPIC}",
+    -- 首次创建从分区起始位置消费（缺省 OFFSET_END/LATEST 会在 job 创建瞬间
+    -- 锁定末尾偏移，创建前已产生的日志消息被永久跳过；对日志入仓链路而言
+    -- 历史消息应全部加载）。
+    "property.kafka_default_offsets" = "OFFSET_BEGINNING",
     "property.group.id" = "${KAFKA_GROUP_ID}",
     "property.client.id" = "${KAFKA_CLIENT_ID}"
 );

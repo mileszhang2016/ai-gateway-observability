@@ -38,7 +38,7 @@
 | 字段 | 类型 | 说明 | Grafana 提示 |
 |------|------|------|--------------|
 | `hostid` | VARCHAR(256) | 主机标识，格式 `hostname_netns` | 维度 |
-| `log_time` | DATETIME | 日志产生时间 | **时间字段**，明细表用此字段做时间过滤 |
+| `log_time` | DATETIME | 日志产生时间（**UTC 墙钟**：Routine Load 用 `DATE_SUB(FROM_UNIXTIME(timestamp), INTERVAL TIMESTAMPDIFF(SECOND, UTC_TIMESTAMP(), NOW()) SECOND)` 写入，任何 FE 时区下口径一致；与 MySQL 链路 log-reader 写入口径相同） | **时间字段**，明细表用此字段做时间过滤 |
 | `ai_apikey_id` | VARCHAR(256) | API Key ID（虚拟 Key，非原始 Key） | 维度 |
 | `ai_requested_model` | VARCHAR(128) | 请求模型名（客户端请求的模型） | 维度 |
 | `logid` | BIGINT | BFE 请求唯一标识 | — |

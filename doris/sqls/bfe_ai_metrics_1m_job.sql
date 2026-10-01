@@ -71,8 +71,10 @@ SELECT
     SUM(COALESCE(ai_audio_output_tokens, 0)) AS ai_audio_output_tokens,
     SUM(COALESCE(ai_image_count, 0))         AS ai_image_count
 FROM bfe_ai_request_log
-WHERE log_time >= DATE_TRUNC(NOW(), 'minute') - INTERVAL 1 MINUTE
-  AND log_time <  DATE_TRUNC(NOW(), 'minute')
+-- 窗口按 UTC 计算：log_time 存的是 UTC 墙钟（见 bfe_ai_log_load_routine.sql），
+-- NOW() 随会话时区变化，UTC_TIMESTAMP() 与时区无关。
+WHERE log_time >= DATE_TRUNC(UTC_TIMESTAMP(), 'minute') - INTERVAL 1 MINUTE
+  AND log_time <  DATE_TRUNC(UTC_TIMESTAMP(), 'minute')
 GROUP BY ts_min, hostid, ai_apikey_id, ai_requested_model, ai_target_model, ai_stream,
          product, cluster, sub_cluster, backend_info, method, res_status_code,
          err_code, header_host, ai_provider, ai_protocol, ai_mode, ai_cost_currency,
